@@ -1,0 +1,272 @@
+[gd_scene format=3 uid="uid://13iky6s1b1bx"]
+
+[ext_resource type="Script" uid="uid://dsmcu3b5dcfci" path="res://scripts/OrbitCamera.gd" id="1_cam"]
+[ext_resource type="PackedScene" uid="uid://bk4bbkbe75hso" path="res://assets/models/camp.glb" id="2_camp"]
+[ext_resource type="PackedScene" uid="uid://ckdia15nketyf" path="res://assets/models/treeTrunks.glb" id="3_trees"]
+[ext_resource type="PackedScene" uid="uid://b03wqso084vt6" path="res://assets/models/rocks.glb" id="4_rocks"]
+[ext_resource type="PackedScene" uid="uid://b40y4d0x217h3" path="res://assets/models/bridge.glb" id="5_bridge"]
+[ext_resource type="PackedScene" uid="uid://bn0eyk58tceig" path="res://assets/models/tent.glb" id="6_tent"]
+[ext_resource type="Shader" uid="uid://dh6bww74cm6pm" path="res://shaders/ground.gdshader" id="7_ground_sh"]
+[ext_resource type="Texture2D" uid="uid://btg48luve0i8i" path="res://assets/textures/grass/path_data_rgb_768x768.png" id="8_density"]
+[ext_resource type="Texture2D" uid="uid://cusrspk1e2bf6" path="res://assets/textures/grass/displacement_map_256x256.png" id="9_disp"]
+[ext_resource type="Texture2D" uid="uid://w0vksa7e1htg" path="res://assets/textures/noises/perlin_noise_256x256.png" id="10_perlin"]
+[ext_resource type="Texture2D" uid="uid://b7cyskpcwka1a" path="res://assets/textures/ground/rocks_height_256x256.png" id="11_rockh"]
+[ext_resource type="Texture2D" uid="uid://bpfy5se4gmf1m" path="res://assets/textures/ground/rocks_ao_256x256.png" id="12_rockao"]
+[ext_resource type="Shader" uid="uid://dsefjaw3lh3cg" path="res://shaders/rocks.gdshader" id="13_rocks_sh"]
+[ext_resource type="Texture2D" uid="uid://ce6p3f5f8n8vc" path="res://assets/textures/grass/displacement_map_blur_256x256.png" id="14_dispblur"]
+[ext_resource type="Shader" uid="uid://bwhp6aluqh6v0" path="res://shaders/skydome.gdshader" id="16_sky_sh"]
+[ext_resource type="Shader" uid="uid://dr0hcfsjdyx3y" path="res://shaders/water.gdshader" id="17_water_sh"]
+[ext_resource type="Texture2D" uid="uid://cct8ftrivx35t" path="res://assets/textures/water/water_depth_map_256x256.png" id="18_waterdepth"]
+[ext_resource type="Script" uid="uid://cg5wg5hktiwmi" path="res://scripts/GrassField.gd" id="19_grass"]
+[ext_resource type="Script" uid="uid://porw48jwp4jf" path="res://scripts/Fire.gd" id="20_fire"]
+[ext_resource type="Script" uid="uid://d2kyvibuboikk" path="res://scripts/BushField.gd" id="21_bush"]
+[ext_resource type="Script" uid="uid://dacuik0aryq5x" path="res://scripts/WindLines.gd" id="22_wind"]
+[ext_resource type="Script" uid="uid://xofyhs0sc4pg" path="res://scripts/GroundMat.gd" id="23_groundmat"]
+[ext_resource type="Script" uid="uid://hwprqv4oaufy" path="res://scripts/WaterMat.gd" id="24_watermat"]
+[ext_resource type="Script" uid="uid://67yh2dn6wtku" path="res://scripts/SkyMat.gd" id="25_skymat"]
+[ext_resource type="Script" uid="uid://c841oos4g6o6u" path="res://scripts/RocksMat.gd" id="26_rocksmat"]
+[ext_resource type="Script" uid="uid://dqk45ci6vbb7n" path="res://scripts/Weather.gd" id="27_weather"]
+[ext_resource type="Script" uid="uid://bjp7kv3lbpsxa" path="res://scripts/Fireflies.gd" id="28_fireflies"]
+[ext_resource type="Script" uid="uid://ub5pst00t4ef" path="res://scripts/UI.gd" id="29_ui"]
+[ext_resource type="Script" uid="uid://bu62885tlxawy" path="res://scripts/Lightning.gd" id="30_lightning"]
+[ext_resource type="Script" uid="uid://chj7pm2yg6xby" path="res://scripts/FlowerField.gd" id="31_flowers"]
+[ext_resource type="Script" uid="uid://cclf6cp87ql7l" path="res://scripts/NightLight.gd" id="32_nightlight"]
+[ext_resource type="Script" uid="uid://dhcdoybn62j76" path="res://scripts/LampGlow.gd" id="33_lampglow"]
+
+[sub_resource type="ShaderMaterial" id="Sky_mat"]
+shader = ExtResource("16_sky_sh")
+shader_parameter/zenith_color = Vector3(0, 0.35, 0.82)
+shader_parameter/horizon_color = Vector3(0.46, 0.74, 0.93)
+shader_parameter/ground_color = Vector3(0.04, 0.55, 0.65)
+shader_parameter/sun_position = Vector3(-0.846, -0.085, -1)
+shader_parameter/sun_color = Vector3(0.639, 0.494, 0.058)
+shader_parameter/sun_glow_color = Vector3(1, 0.635, 0)
+shader_parameter/sun_size = 0.005
+shader_parameter/sun_glow_size = 0.03386
+shader_parameter/sun_ray_count = 12.0
+shader_parameter/sun_ray_length = 0.0352
+shader_parameter/sun_ray_sharpness = 8.0
+shader_parameter/moon_position = Vector3(-0.5, -0.085, -1)
+shader_parameter/moon_color = Vector3(0.95, 0.95, 1)
+shader_parameter/moon_glow_color = Vector3(0.7, 0.8, 1)
+shader_parameter/moon_size = 0.0268665
+shader_parameter/moon_glow_size = 0.0266345
+shader_parameter/star_color = Vector3(1, 1, 1)
+shader_parameter/star_density = 10.0
+shader_parameter/star_brightness = 2.5
+shader_parameter/is_night = 0.0
+shader_parameter/season = 0.0
+shader_parameter/atmosphere_intensity = 0.0
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("Sky_mat")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 3
+ambient_light_energy = 0.55
+tonemap_mode = 2
+tonemap_exposure = 1.03
+tonemap_white = 3.0
+ssao_enabled = true
+ssao_intensity = 1.5
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 0.7
+glow_bloom = 0.1
+glow_hdr_threshold = 1.25
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.82, 0.86, 0.9, 1)
+fog_light_energy = 1.1
+fog_sun_scatter = 0.1
+fog_density = 1.0
+fog_aerial_perspective = 1.0
+fog_sky_affect = 0.0
+fog_depth_curve = 1.4
+fog_depth_begin = 45.0
+volumetric_fog_density = 0.008
+volumetric_fog_albedo = Color(0.88, 0.91, 0.95, 1)
+volumetric_fog_length = 95.0
+volumetric_fog_ambient_inject = 0.3
+adjustment_enabled = true
+adjustment_brightness = 1.02
+adjustment_contrast = 1.06
+adjustment_saturation = 1.22
+
+[sub_resource type="PlaneMesh" id="Ground_mesh"]
+size = Vector2(130, 130)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_gsxep"]
+load_path = "res://.godot/imported/path_data_rgb_768x768.png-5597b28e64dd22a2a033c19c46add6c8.s3tc.ctex"
+
+[sub_resource type="ShaderMaterial" id="Ground_mat"]
+render_priority = 0
+shader = ExtResource("7_ground_sh")
+shader_parameter/density_map = SubResource("CompressedTexture2D_gsxep")
+shader_parameter/displacement_map = ExtResource("9_disp")
+shader_parameter/perlin_noise = ExtResource("10_perlin")
+shader_parameter/ground_rock_map = ExtResource("11_rockh")
+shader_parameter/ground_rock_ao = ExtResource("12_rockao")
+shader_parameter/ground_size = 33.0
+shader_parameter/rock_tiling = 6.0
+shader_parameter/water_depth_intensity = 1.0
+shader_parameter/uv_rotation = 0.0
+shader_parameter/flip_u = false
+shader_parameter/flip_v = true
+shader_parameter/ground_color_light = Vector3(0.2784, 0.1372, 0.0235)
+shader_parameter/ground_color_dark = Vector3(0.94, 0.58, 0.22)
+shader_parameter/ground_color_below_grass = Vector3(0.12, 0.15, 0.03)
+shader_parameter/rock_color = Vector3(1, 0.78, 0.47)
+shader_parameter/water_shallow = Vector3(1, 0.4, 0)
+shader_parameter/water_deep = Vector3(0.06, 0.5, 0.51)
+shader_parameter/grass_floor = Vector3(0.03, 0.18, 0.015)
+
+[sub_resource type="PlaneMesh" id="Water_mesh"]
+size = Vector2(11.5, 13)
+
+[sub_resource type="ShaderMaterial" id="Water_mat"]
+render_priority = 0
+shader = ExtResource("17_water_sh")
+shader_parameter/density_map = ExtResource("8_density")
+shader_parameter/perlin_noise = ExtResource("10_perlin")
+shader_parameter/water_depth_texture = ExtResource("18_waterdepth")
+shader_parameter/ground_size = 33.0
+shader_parameter/time_speed = 0.06
+shader_parameter/uv_rotation = 0.0
+shader_parameter/flip_u = false
+shader_parameter/flip_v = true
+shader_parameter/ripples_ratio = 1.0
+shader_parameter/density_mask_min = 0.05
+shader_parameter/density_mask_max = 0.15
+shader_parameter/shore_mask_threshold = 0.4
+shader_parameter/noise_scale1 = 3.0
+shader_parameter/noise_scale2 = 5.0
+shader_parameter/noise_speed1 = 0.5
+shader_parameter/noise_speed2 = 0.3
+shader_parameter/noise_mix1 = 0.6
+shader_parameter/noise_mix2 = 0.4
+shader_parameter/noise_depth_influence = 0.3
+shader_parameter/ripple_frequency = 12.0
+shader_parameter/ripple_inner_edge = 0.05
+shader_parameter/ripple_outer_edge = 0.4
+shader_parameter/breakup_min = 0.2
+shader_parameter/breakup_max = 0.75
+shader_parameter/water_depth_fade = 0.1
+shader_parameter/discard_threshold = 0.45
+shader_parameter/ripple_opacity = 2.5
+shader_parameter/splashes_ratio = 0.0
+shader_parameter/splashes_noise_frequency = 0.33
+shader_parameter/splashes_time_frequency = 6.0
+shader_parameter/splashes_thickness = 0.3
+shader_parameter/splashes_edge_low = 0.14
+shader_parameter/splashes_edge_high = 1.0
+shader_parameter/splashes_center_min = 0.0
+shader_parameter/splashes_center_max = 0.5
+shader_parameter/ice_ratio = 0.0
+shader_parameter/ice_noise_frequency = 0.3
+shader_parameter/ice_color = Vector3(0.9, 0.95, 1)
+
+[sub_resource type="ShaderMaterial" id="Rocks_mat"]
+render_priority = 0
+shader = ExtResource("13_rocks_sh")
+shader_parameter/displacement_map = ExtResource("14_dispblur")
+shader_parameter/perlin_noise = ExtResource("10_perlin")
+shader_parameter/rock_color1 = Vector3(0.96, 0.86, 0.54)
+shader_parameter/rock_color2 = Vector3(0.97, 0.82, 0.42)
+shader_parameter/rock_color3 = Vector3(0.31, 0.24, 0.06)
+shader_parameter/moss_color1 = Vector3(0.97, 0.82, 0.42)
+shader_parameter/moss_color2 = Vector3(0.97, 0.82, 0.42)
+shader_parameter/moss_color3 = Vector3(0.14, 0.17, 0.003)
+shader_parameter/moss_noise_factor = 1.2
+shader_parameter/moss_visibility = 3.0
+
+[node name="Main" type="Node3D" unique_id=878486675]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1598850636]
+environment = SubResource("Env")
+script = ExtResource("25_skymat")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1009974724]
+transform = Transform3D(0.707, -0.577, 0.408, 0, 0.577, 0.816, -0.707, -0.577, 0.408, 0, 20, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=1487182567]
+mesh = SubResource("Ground_mesh")
+surface_material_override/0 = SubResource("Ground_mat")
+script = ExtResource("23_groundmat")
+
+[node name="Water" type="MeshInstance3D" parent="." unique_id=1412825487]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.1, 1.3)
+mesh = SubResource("Water_mesh")
+surface_material_override/0 = SubResource("Water_mat")
+script = ExtResource("24_watermat")
+
+[node name="GrassField" type="MultiMeshInstance3D" parent="." unique_id=440001122]
+script = ExtResource("19_grass")
+
+[node name="Fire" type="Node3D" parent="." unique_id=440002233]
+script = ExtResource("20_fire")
+
+[node name="FlowerField" type="MultiMeshInstance3D" parent="." unique_id=440009900]
+script = ExtResource("31_flowers")
+
+[node name="BushField" type="Node3D" parent="." unique_id=440003344]
+script = ExtResource("21_bush")
+
+[node name="WindLines" type="Node3D" parent="." unique_id=440004455]
+script = ExtResource("22_wind")
+
+[node name="Weather" type="Node3D" parent="." unique_id=440005566]
+script = ExtResource("27_weather")
+
+[node name="Fireflies" type="MultiMeshInstance3D" parent="." unique_id=440006677]
+script = ExtResource("28_fireflies")
+
+[node name="Camp" parent="." unique_id=1889734676 instance=ExtResource("2_camp")]
+
+[node name="TentLamp" type="OmniLight3D" parent="." unique_id=440010011]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.916948, 4.3615227, -5.0167437)
+light_color = Color(1, 0.886, 0.525, 1)
+light_energy = 4.0
+light_cull_mask = 1048573
+shadow_enabled = true
+omni_range = 20.0
+script = ExtResource("32_nightlight")
+
+[node name="TentFill" type="OmniLight3D" parent="." unique_id=440010012]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9, 3.2, -6.8)
+light_color = Color(1, 0.87, 0.62, 1)
+light_energy = 4.0
+light_cull_mask = 2
+omni_range = 6.0
+omni_attenuation = 1.5
+script = ExtResource("32_nightlight")
+
+[node name="TreeTrunks" parent="." unique_id=1595455507 instance=ExtResource("3_trees")]
+
+[node name="Rocks" parent="." unique_id=379436791 instance=ExtResource("4_rocks")]
+script = ExtResource("26_rocksmat")
+material = SubResource("Rocks_mat")
+
+[node name="Bridge" parent="." unique_id=660627595 instance=ExtResource("5_bridge")]
+transform = Transform3D(-0.79562, 0.08362, 0, 0.08362, 0.79562, 0, 0, 0, -0.85, -8, 1.5, 1.25)
+
+[node name="Tent" parent="." unique_id=1281014476 instance=ExtResource("6_tent")]
+transform = Transform3D(1.09849, 0, -0.05757, 0, 1.1, 0, 0.05757, 0, 1.09849, 2.5, 0.6, -9)
+script = ExtResource("33_lampglow")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=440007788]
+script = ExtResource("29_ui")
+
+[node name="Lightning" type="Node3D" parent="." unique_id=440008899]
+script = ExtResource("30_lightning")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=211196783]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.25, 10.69, 27.32)
+fov = 25.0
+near = 0.1
+far = 200.0
+script = ExtResource("1_cam")

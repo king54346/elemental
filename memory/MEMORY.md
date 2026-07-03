@@ -1,0 +1,1 @@
+- [Elemental→Godot 迁移](elemental-godot-migration.md) — 项目目标：Three.js 场景迁到 Godot 4.4，仅桌面/高还原度，工程根即本目录
