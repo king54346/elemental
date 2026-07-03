@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://13iky6s1b1bx"]
+[gd_scene format=4 uid="uid://13iky6s1b1bx"]
 
 [ext_resource type="Script" uid="uid://dsmcu3b5dcfci" path="res://scripts/OrbitCamera.gd" id="1_cam"]
 [ext_resource type="PackedScene" uid="uid://bk4bbkbe75hso" path="res://assets/models/camp.glb" id="2_camp"]
@@ -15,14 +15,12 @@
 [ext_resource type="Shader" uid="uid://dsefjaw3lh3cg" path="res://shaders/rocks.gdshader" id="13_rocks_sh"]
 [ext_resource type="Texture2D" uid="uid://ce6p3f5f8n8vc" path="res://assets/textures/grass/displacement_map_blur_256x256.png" id="14_dispblur"]
 [ext_resource type="Shader" uid="uid://bwhp6aluqh6v0" path="res://shaders/skydome.gdshader" id="16_sky_sh"]
-[ext_resource type="Shader" uid="uid://dr0hcfsjdyx3y" path="res://shaders/water.gdshader" id="17_water_sh"]
-[ext_resource type="Texture2D" uid="uid://cct8ftrivx35t" path="res://assets/textures/water/water_depth_map_256x256.png" id="18_waterdepth"]
+[ext_resource type="Shader" uid="uid://dr6rryyanj0ak" path="res://shaders/water_volume.gdshader" id="17_water_sh"]
 [ext_resource type="Script" uid="uid://cg5wg5hktiwmi" path="res://scripts/GrassField.gd" id="19_grass"]
 [ext_resource type="Script" uid="uid://porw48jwp4jf" path="res://scripts/Fire.gd" id="20_fire"]
 [ext_resource type="Script" uid="uid://d2kyvibuboikk" path="res://scripts/BushField.gd" id="21_bush"]
 [ext_resource type="Script" uid="uid://dacuik0aryq5x" path="res://scripts/WindLines.gd" id="22_wind"]
 [ext_resource type="Script" uid="uid://xofyhs0sc4pg" path="res://scripts/GroundMat.gd" id="23_groundmat"]
-[ext_resource type="Script" uid="uid://hwprqv4oaufy" path="res://scripts/WaterMat.gd" id="24_watermat"]
 [ext_resource type="Script" uid="uid://67yh2dn6wtku" path="res://scripts/SkyMat.gd" id="25_skymat"]
 [ext_resource type="Script" uid="uid://c841oos4g6o6u" path="res://scripts/RocksMat.gd" id="26_rocksmat"]
 [ext_resource type="Script" uid="uid://dqk45ci6vbb7n" path="res://scripts/Weather.gd" id="27_weather"]
@@ -32,6 +30,14 @@
 [ext_resource type="Script" uid="uid://chj7pm2yg6xby" path="res://scripts/FlowerField.gd" id="31_flowers"]
 [ext_resource type="Script" uid="uid://cclf6cp87ql7l" path="res://scripts/NightLight.gd" id="32_nightlight"]
 [ext_resource type="Script" uid="uid://dhcdoybn62j76" path="res://scripts/LampGlow.gd" id="33_lampglow"]
+[ext_resource type="Script" uid="uid://n6r7w77yhssr" path="res://scripts/WaterVolume.gd" id="34_watervol"]
+[ext_resource type="Texture2D" uid="uid://chrhw17r41p8n" path="res://assets/textures/water/micro_normal_a.png" id="35_mna"]
+[ext_resource type="Texture2D" uid="uid://eako8hd4fa23" path="res://assets/textures/water/micro_normal_b.png" id="36_mnb"]
+[ext_resource type="Texture2D" uid="uid://dfoamnrml00a1" path="res://assets/textures/water/foam_normal.png" id="37_fn"]
+[ext_resource type="Texture2D" uid="uid://0nt25dhn1yef" path="res://assets/textures/water/caustics.png" id="38_caus"]
+[ext_resource type="Texture2D" uid="uid://gwas6dqqwmq0" path="res://assets/textures/water/foam_bubble.png" id="39_fb"]
+[ext_resource type="PackedScene" uid="uid://cboatelem0001" path="res://scenes/Boat.tscn" id="42_boatscene"]
+[ext_resource type="Script" uid="uid://bdu6uprx3bfa6" path="res://scripts/FishSchool.gd" id="43_fish"]
 
 [sub_resource type="ShaderMaterial" id="Sky_mat"]
 shader = ExtResource("16_sky_sh")
@@ -97,6 +103,8 @@ adjustment_saturation = 1.22
 
 [sub_resource type="PlaneMesh" id="Ground_mesh"]
 size = Vector2(130, 130)
+subdivide_width = 300
+subdivide_depth = 300
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_gsxep"]
 load_path = "res://.godot/imported/path_data_rgb_768x768.png-5597b28e64dd22a2a033c19c46add6c8.s3tc.ctex"
@@ -121,52 +129,109 @@ shader_parameter/ground_color_below_grass = Vector3(0.12, 0.15, 0.03)
 shader_parameter/rock_color = Vector3(1, 0.78, 0.47)
 shader_parameter/water_shallow = Vector3(1, 0.4, 0)
 shader_parameter/water_deep = Vector3(0.06, 0.5, 0.51)
+shader_parameter/water_center = Vector2(0.53, 0.535)
+shader_parameter/basin_depth = 1.3
+shader_parameter/basin_rim_depth = 0.12
+shader_parameter/basin_radius = 0.3
+shader_parameter/basin_falloff = 1.0
+shader_parameter/wet_darken = 0.5
+shader_parameter/wet_tint = 0.22
 shader_parameter/grass_floor = Vector3(0.03, 0.18, 0.015)
 
 [sub_resource type="PlaneMesh" id="Water_mesh"]
-size = Vector2(11.5, 13)
+size = Vector2(22, 22)
+subdivide_width = 96
+subdivide_depth = 96
 
 [sub_resource type="ShaderMaterial" id="Water_mat"]
 render_priority = 0
 shader = ExtResource("17_water_sh")
+shader_parameter/sim_time = 0.0
+shader_parameter/water_world_position = Vector3(0, 0, 0)
+shader_parameter/water_size_xz = Vector2(12, 12)
 shader_parameter/density_map = ExtResource("8_density")
-shader_parameter/perlin_noise = ExtResource("10_perlin")
-shader_parameter/water_depth_texture = ExtResource("18_waterdepth")
 shader_parameter/ground_size = 33.0
-shader_parameter/time_speed = 0.06
 shader_parameter/uv_rotation = 0.0
 shader_parameter/flip_u = false
 shader_parameter/flip_v = true
-shader_parameter/ripples_ratio = 1.0
-shader_parameter/density_mask_min = 0.05
-shader_parameter/density_mask_max = 0.15
-shader_parameter/shore_mask_threshold = 0.4
-shader_parameter/noise_scale1 = 3.0
-shader_parameter/noise_scale2 = 5.0
-shader_parameter/noise_speed1 = 0.5
-shader_parameter/noise_speed2 = 0.3
-shader_parameter/noise_mix1 = 0.6
-shader_parameter/noise_mix2 = 0.4
-shader_parameter/noise_depth_influence = 0.3
-shader_parameter/ripple_frequency = 12.0
-shader_parameter/ripple_inner_edge = 0.05
-shader_parameter/ripple_outer_edge = 0.4
-shader_parameter/breakup_min = 0.2
-shader_parameter/breakup_max = 0.75
-shader_parameter/water_depth_fade = 0.1
-shader_parameter/discard_threshold = 0.45
-shader_parameter/ripple_opacity = 2.5
-shader_parameter/splashes_ratio = 0.0
-shader_parameter/splashes_noise_frequency = 0.33
-shader_parameter/splashes_time_frequency = 6.0
-shader_parameter/splashes_thickness = 0.3
-shader_parameter/splashes_edge_low = 0.14
-shader_parameter/splashes_edge_high = 1.0
-shader_parameter/splashes_center_min = 0.0
-shader_parameter/splashes_center_max = 0.5
-shader_parameter/ice_ratio = 0.0
-shader_parameter/ice_noise_frequency = 0.3
-shader_parameter/ice_color = Vector3(0.9, 0.95, 1)
+shader_parameter/pond_edge_low = 0.04
+shader_parameter/pond_edge_high = 0.14
+shader_parameter/wave_count = 0
+shader_parameter/wave_directions = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wave_wavelengths = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wave_amplitudes = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wave_speeds = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wave_steepnesses = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/wave_nonlinear_exp = 1.3
+shader_parameter/wave_scale = 1.0
+shader_parameter/absorption_coeff = Vector3(0.9, 0.35, 0.18)
+shader_parameter/scattering_intensity = 0.4
+shader_parameter/visibility_distance = 4.0
+shader_parameter/water_ior = 1.333
+shader_parameter/refraction_strength = 0.03
+shader_parameter/color_shallow = Color(0.13, 0.52, 0.55, 1)
+shader_parameter/color_deep = Color(0.02, 0.16, 0.22, 1)
+shader_parameter/subsurface_color = Color(0.06, 0.55, 0.45, 1)
+shader_parameter/subsurface_strength = 0.7
+shader_parameter/subsurface_exponent = 4.0
+shader_parameter/water_roughness = 0.06
+shader_parameter/glint_strength = 0.5
+shader_parameter/glint_sharpness = 128.0
+shader_parameter/glint_density = 1.0
+shader_parameter/micro_normal_1 = ExtResource("35_mna")
+shader_parameter/micro_normal_2 = ExtResource("36_mnb")
+shader_parameter/micro_normal_strength = 0.25
+shader_parameter/micro_normal_scale = 6.0
+shader_parameter/wind_direction = Vector2(1, 0.27)
+shader_parameter/wind_speed = 0.5
+shader_parameter/micro_normal_speed1 = 0.6
+shader_parameter/micro_normal_speed2 = -0.4
+shader_parameter/micro_normal_layer_ratio = 1.7
+shader_parameter/foam_normal_detail = ExtResource("37_fn")
+shader_parameter/foam_bubble_texture = ExtResource("39_fb")
+shader_parameter/foam_color = Color(0.95, 0.98, 1, 1)
+shader_parameter/foam_amount = 0.0
+shader_parameter/foam_intensity = 1.2
+shader_parameter/shoreline_width = 0.35
+shader_parameter/shoreline_foam_intensity = 2.0
+shader_parameter/foam_density = 3.0
+shader_parameter/foam_normal_strength = 0.5
+shader_parameter/caustics_texture = ExtResource("38_caus")
+shader_parameter/caustics_strength = 0.16
+shader_parameter/caustics_scale = 0.35
+shader_parameter/caustics_speed = 0.45
+shader_parameter/caustics_distortion = 0.4
+shader_parameter/caustics_fade_distance = 4.0
+shader_parameter/sun_direction = Vector3(0.4, 0.7, 0.4)
+shader_parameter/sun_color = Vector3(1, 0.95, 0.85)
+shader_parameter/sun_elevation = 1.2
+shader_parameter/ice_amount = 0.0
+shader_parameter/ice_color = Color(0.82, 0.9, 0.96, 1)
+shader_parameter/ice_crack_scale = 0.9
+shader_parameter/ice_roughness = 0.5
+shader_parameter/fish_count = 0
+shader_parameter/fish_data = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/fish_size = 0.32
+shader_parameter/fish_tail_freq = 7.0
+shader_parameter/fish_color1 = Color(0.95, 0.42, 0.1, 1)
+shader_parameter/fish_color2 = Color(0.96, 0.95, 0.92, 1)
+shader_parameter/fish_opacity = 0.9
+shader_parameter/sim_center = Vector2(0, 0)
+shader_parameter/sim_size = 22.0
+shader_parameter/sim_render_scale = 0.06
+shader_parameter/sim_normal_scale = 1.2
+shader_parameter/sim_foam_scale = 7.0
+shader_parameter/boat_pos = Vector2(9999, 9999)
+shader_parameter/boat_radius = 1.1
+shader_parameter/boat_displace = 0.0
+shader_parameter/boat_collar_foam = 1.0
+shader_parameter/hull_cut_count = 0
+shader_parameter/hull_cut_centers = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/hull_cut_axes = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/hull_cut_shapes = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/hull_cut_widths = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/hull_cut_vert = PackedVector4Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/hull_cut_debug = false
 
 [sub_resource type="ShaderMaterial" id="Rocks_mat"]
 render_priority = 0
@@ -202,7 +267,34 @@ script = ExtResource("23_groundmat")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.1, 1.3)
 mesh = SubResource("Water_mesh")
 surface_material_override/0 = SubResource("Water_mat")
-script = ExtResource("24_watermat")
+script = ExtResource("34_watervol")
+
+[node name="Boat" parent="." unique_id=200411005 instance=ExtResource("42_boatscene")]
+transform = Transform3D(0.642788, 0, -0.766044, 0, 1, 0, 0.766044, 0, 0.642788, 1.2, 0.3, -0.6)
+
+[node name="FishSchool" type="Node3D" parent="." unique_id=1723549593]
+script = ExtResource("43_fish")
+count = null
+swim_depth = 0.7
+cruise_speed = null
+max_speed = null
+fish_scale = null
+fish_mass = null
+body_radius = null
+steer_accel = null
+depth_k = null
+depth_damp = null
+neighbor_radius = null
+separation_radius = null
+cohesion_w = null
+alignment_w = null
+separation_w = null
+wander_w = null
+gather_w = null
+boat_avoid_radius = null
+scatter_radius = null
+scatter_impulse = null
+pond_center = null
 
 [node name="GrassField" type="MultiMeshInstance3D" parent="." unique_id=440001122]
 script = ExtResource("19_grass")
@@ -228,13 +320,14 @@ script = ExtResource("28_fireflies")
 [node name="Camp" parent="." unique_id=1889734676 instance=ExtResource("2_camp")]
 
 [node name="TentLamp" type="OmniLight3D" parent="." unique_id=440010011]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.916948, 4.3615227, -5.0167437)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.916948, 4.3615227, -5.066417)
 light_color = Color(1, 0.886, 0.525, 1)
 light_energy = 4.0
 light_cull_mask = 1048573
 shadow_enabled = true
 omni_range = 20.0
 script = ExtResource("32_nightlight")
+metadata/_edit_lock_ = true
 
 [node name="TentFill" type="OmniLight3D" parent="." unique_id=440010012]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9, 3.2, -6.8)
@@ -244,6 +337,7 @@ light_cull_mask = 2
 omni_range = 6.0
 omni_attenuation = 1.5
 script = ExtResource("32_nightlight")
+metadata/_edit_lock_ = true
 
 [node name="TreeTrunks" parent="." unique_id=1595455507 instance=ExtResource("3_trees")]
 
@@ -252,11 +346,12 @@ script = ExtResource("26_rocksmat")
 material = SubResource("Rocks_mat")
 
 [node name="Bridge" parent="." unique_id=660627595 instance=ExtResource("5_bridge")]
-transform = Transform3D(-0.79562, 0.08362, 0, 0.08362, 0.79562, 0, 0, 0, -0.85, -8, 1.5, 1.25)
+transform = Transform3D(-0.79562, 0.08362, 0, 0.08362, 0.79562, 0, 0, 0, -0.8, -8, 1.5, 1.25)
 
 [node name="Tent" parent="." unique_id=1281014476 instance=ExtResource("6_tent")]
 transform = Transform3D(1.09849, 0, -0.05757, 0, 1.1, 0, 0.05757, 0, 1.09849, 2.5, 0.6, -9)
 script = ExtResource("33_lampglow")
+metadata/_edit_lock_ = true
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=440007788]
 script = ExtResource("29_ui")

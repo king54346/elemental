@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://cboatelem0001"]
+
+[ext_resource type="Script" uid="uid://obhvo2etxc0d" path="res://scripts/FloatingBoat.gd" id="1_boat"]
+[ext_resource type="PackedScene" uid="uid://isds2g3udr41" path="res://assets/models/low_poly_boat/scene.gltf" id="2_model"]
+[ext_resource type="Script" uid="uid://c28ri7mj0l3gg" path="res://scripts/WaterCutoutTrapezoid.gd" id="3_cut"]
+
+[sub_resource type="BoxShape3D" id="BoatShape"]
+size = Vector3(3, 0.58, 1.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nai5d"]
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(0.2, 0.7, 1, 0.9)
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_4pna2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wdn3g"]
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(0.2, 0.7, 1, 0.9)
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_x0g7w"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3afor"]
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(0.2, 0.7, 1, 0.9)
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_gbyt4"]
+
+[node name="Boat" type="RigidBody3D" unique_id=859295380]
+mass = 15.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -0.12, 0)
+can_sleep = false
+linear_damp = 1.4
+angular_damp = 3.0
+script = ExtResource("1_boat")
+
+[node name="Col" type="CollisionShape3D" parent="." unique_id=354592971]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.31, 0)
+shape = SubResource("BoatShape")
+
+[node name="Scaler" type="Node3D" parent="." unique_id=1925097571]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+
+[node name="Model" parent="Scaler" unique_id=1496793841 instance=ExtResource("2_model")]
+
+[node name="Cutouts" type="Node3D" parent="." unique_id=166735475]
+
+[node name="BowCutout" type="MeshInstance3D" parent="Cutouts" unique_id=1544715303]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.94, 0.15, 0)
+material_override = SubResource("StandardMaterial3D_nai5d")
+cast_shadow = 0
+extra_cull_margin = 10000.0
+mesh = SubResource("ImmediateMesh_4pna2")
+script = ExtResource("3_cut")
+end_half_width = 0.05
+
+[node name="MidCutout" type="MeshInstance3D" parent="Cutouts" unique_id=1940284603]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0.15, 0)
+material_override = SubResource("StandardMaterial3D_wdn3g")
+cast_shadow = 0
+extra_cull_margin = 10000.0
+mesh = SubResource("ImmediateMesh_x0g7w")
+script = ExtResource("3_cut")
+
+[node name="SternCutout" type="MeshInstance3D" parent="Cutouts" unique_id=1597345424]
+transform = Transform3D(0, 0, 1.1182258, 0, 1, 0, -1.0696002, 0, 0, -0.98849744, 0.15, 0)
+material_override = SubResource("StandardMaterial3D_3afor")
+cast_shadow = 0
+extra_cull_margin = 10000.0
+mesh = SubResource("ImmediateMesh_gbyt4")
+script = ExtResource("3_cut")
+start_half_width = 0.25

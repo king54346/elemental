@@ -29,11 +29,24 @@ uniform vec3 ground_color_below_grass = vec3(0.12, 0.15, 0.03);
 uniform vec3 rock_color = vec3(1.0, 0.78, 0.47);
 uniform vec3 water_shallow = vec3(1.0, 0.4, 0.0);
 uniform vec3 water_deep = vec3(0.06, 0.5, 0.51);
+
+// --- basin carving (real geometry depth for the volumetric water surface) ---
+// The pond used to be flat, painted-on colour. Now we push the ground vertices
+// down inside the water region so the transparent water shader above has actual
+// depth to read from the depth buffer. Requires the ground mesh to be subdivided.
+uniform vec2 water_center = vec2(0.53, 0.535);
+uniform float basin_depth = 1.3;        // max dig at the pond centre (world units)
+uniform float basin_rim_depth = 0.12;   // dig right at the shoreline
+uniform float basin_radius = 0.3;       // radius (in density-UV) of the depth falloff
+uniform float basin_falloff = 1.0;      // curve of centre->rim depth
+uniform float wet_darken = 0.5;         // how much the submerged floor darkens
+uniform float wet_tint = 0.22;          // how much the floor takes the deep-water hue
 // grassy floor tint under dense grass so gaps between blades read as grass, not
 // dirt (set per-season to the mid grass tone by GroundMat.gd).
 uniform vec3 grass_floor = vec3(0.2, 0.46, 0.02);
 
 varying vec2 v_uv;
+varying float v_basin_dig;
 
 // density map is rotated relative to the model layout; rotate UV about center.
 vec2 rot_density(vec2 uv) {
@@ -56,6 +69,16 @@ void vertex() {
 	// heightUv = (worldPos.xz + uGroundSize.xz*0.5) / uGroundSize.xz
 	vec3 world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	v_uv = rot_density((world_pos.xz + vec2(ground_size) * 0.5) / vec2(ground_size));
+
+	// Carve the basin: dig deepest at the pond centre, tapering to a shallow rim
+	// at the shoreline. Driven by the same density.b water mask used for colour.
+	float wmask = textureLod(density_map, v_uv, 0.0).b;
+	wmask = smoothstep(0.04, 0.5, wmask);
+	float dcen = length(v_uv - water_center);
+	float depth_profile = pow(1.0 - smoothstep(0.0, basin_radius, dcen), basin_falloff);
+	float dig = wmask * mix(basin_rim_depth, basin_depth, depth_profile);
+	VERTEX.y -= dig;
+	v_basin_dig = dig;
 }
 
 void fragment() {
@@ -92,13 +115,13 @@ void fragment() {
 	float edge_softness = smoothstep(0.0, 1.0, edge_strength);
 	water_mask = mix(water_mask, water_mask * (1.0 - edge_softness * 0.7), min(edge_strength, 1.0));
 
-	vec2 water_center = vec2(0.53, 0.535);
-	float dist_from_center = length(v_uv - water_center);
-	float depth_gradient = 1.0 - smoothstep(0.0, 0.3, dist_from_center);
-	depth_gradient = pow(depth_gradient, water_depth_intensity);
-	vec3 water_color = mix(water_shallow, water_deep, depth_gradient);
-
-	ground_color = mix(ground_color, water_color, water_mask);
+	// The submerged floor is now real terrain seen through the transparent water
+	// surface, not a painted blue disc. Darken it and push it slightly toward the
+	// deep-water hue so it reads as a wet pond bed; the blue body + depth fade are
+	// produced by the volumetric water shader above.
+	float submerged = smoothstep(0.04, 0.35, water_mask);
+	vec3 wet_floor = mix(ground_color * wet_darken, water_deep, wet_tint);
+	ground_color = mix(ground_color, wet_floor, submerged);
 
 	ALBEDO = ground_color;
 	ROUGHNESS = 1.0;
